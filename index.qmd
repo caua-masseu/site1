@@ -1,0 +1,574 @@
+---
+title: 'Dados em Painéis '
+subtitle: ''
+author: 'Cauã Pereira Masseu 204238 <br> Luca Rocha 204326 <br> Paula Liserre 242782 <br> Victor Poggetti 204384'
+institute: '<br> Instituto de Matemática, Estatística e Computação Científica (IMECC) <br> Universidade Estadual de Campinas (UNICAMP)'
+format:
+  revealjs:
+    # html-math-method: katex
+    embed-resources: true
+    width: 1600
+    height: 900
+    code-fold: true
+    theme: [default, styles.css]
+    title-slide-attributes:
+     # data-background-image: 'figuras/unicamp.png'
+      data-background-size: 18%
+      data-background-position: 96% 5%
+      data-background-opacity: '1'
+lang: pt
+crossref:
+  eq-prefix: ''
+knitr:
+    opts_chunk: 
+      fig.align: 'center'
+editor_options: 
+  chunk_output_type: console
+---
+
+# Dados em Painéis
+
+## Motivação
+
+-   O que são dados em painéis? Como ajustar um modelo nesse tipo de dados?
+-   Dados em painel são um tipo de dados que combinam características de dados transversais e de séries temporais. Eles consistem em observações coletadas de múltiplas unidades ao longo de vários períodos de tempo, ou seja, n unidades de corte transversal que são acompanhadas ao longo de T períodos de tempo.
+
+### Exemplo de Dados em Painel
+
+| ID  | Ano  | Y   | X_2 |
+|-----|------|-----|-----|
+| 1   | 2010 | 5   | 7   |
+| 2   | 2010 | 6   | 9   |
+| 1   | 2011 | 7   | 8   |
+| 2   | 2011 | 5   | 10  |
+
+## Tipos de Dados em Painéis
+
+-   **Painel Balanceado**: Igual o número de observações para cada individuo observado (o qual terá maior ênfase)
+-   **Micro Painel**: Número de individuos é maior que o numero de periodos
+-   **Macro Painel**: Número de periodos é maior que o numero de individuos
+-   **Painel Dinâmico**: Inclui variáveis "defasada" de outras variáveis
+-   **Painel Não Balanceado**: número de observações diferentes para cada individuo observado
+
+## Vantagens e Desvantagens dos Dados em Painel
+
+**Vantagens:**
+
+-   Controle de heterogeneidade não observada;
+-   Redução de colinearidade entre variáveis independentes;
+-   Melhor eficiência das estimativas;
+-   Observar uma mesma população ao longo do tempo
+
+**Desvantagens:**
+
+-   Problemas de consistência e acessibilidade dos dados;
+-   Sazonalidade e choques externos;
+-   Modelos complexos e alta demanda computacional
+-   A presença de dados faltantes em um painel pode complicar a análise
+
+## Modelo Geral para Dados em Painel
+
+O modelo geral para dados em painel pode ser representado através da seguinte equação: $$\begin{align*}
+y_{it} = \beta_{0it} + \beta_{1it}x_{1it} + \ldots + \beta_{kit}x_{kit} + \epsilon_{it}
+\end{align*}$$ em que:
+
+-   **i** representa os diferentes indivíduos;
+-   **t** representa o período de tempo que está sendo analisado;
+-   $y_{it}$ é o valor da variável dependente para a unidade i no tempo t (i = 1, ..., n e t = 1, ..., T);
+-   $x_{kit}$ é o valor da k-ésima covariável para o indivíduo i no instante de tempo t;
+-   $\epsilon_{it}$ é a perturbação aleatória para a unidade i no tempo t (erros aleatórios);
+-   Caso $\epsilon_{it} \sim IID(0, \sigma^2)$, podemos agrupar os dados e estimar o modelo por MQO
+
+## Forma Matricial do modelo
+
+O modelo geral pode também ser representado pela forma matricial:\
+$$\begin{align*}
+y = X\beta + \epsilon
+\end{align*}$$
+
+em que:
+
+-   $y = [y_1 \ldots y_n]'$, com dimensão nT x 1;\
+
+-   $X = [X_1 \ldots X_n]'$, com dimensão nT x K;\
+
+-   $\beta = [\beta_1 \ldots \beta_K]'$, com dimensão K x 1;\
+
+-   $\epsilon = [\epsilon_1 \ldots \epsilon_n]$, com dimensão nT x 1; $\epsilon = \alpha_i + \eta_{it}$;\
+
+-   $\alpha_i \sim N(0, \sigma^2_\alpha)$; $\eta_{it} \sim N(0, \sigma^2_\eta)$;\
+
+-   Assume-se que Cor($\eta_{it}, X_{it}$) = 0;
+
+    -   Se Cor($\alpha_i, X_{it}$) = 0 $\rightarrow$ Modelo de Efeitos Aleatórios\
+    -   Se Cor($\alpha_i, X_{it}$) $\neq$ 0 $\rightarrow$ Modelo de Efeitos Fixos
+
+## Modelo de Efeitos Aleatórios
+
+Este modelo considera que o intercepto seja uma variável aleatória e não uma constante, variando de um indivíduo para outro, mas não ao longo do tempo, e os parâmetros de resposta são constantes para todos os indivíduos e em todos os períodos de tempo.
+
+Seja o modelo
+
+$$y_{it} = X_{it}\beta + \epsilon_{it}$$
+
+om $\epsilon_{it} = \alpha_i + \eta_{it}$:\
+- O fato de $\alpha_i$ e $\eta_{it}$ não serem correlacionados com $X_{it}$ implica que não há correlação entre $\epsilon_{it}$ e $X_{it}$;\
+- $\hat{\beta}_{MQO}$ é não viesado\
+- A variância de $\hat{\beta}_{MQO}$ não está corretamente estimada\
+- O estimador não é eficiente\
+- MQO trata os efeitos $\alpha_i$ como parte do erro\
+- Deve-se utilizar MQGF para estimar $\beta$
+
+## Suposições acerca do erro
+
+Para o Modelo de Efeitos Aleatórios, tem-se algumas suposições envolvendo o erro aleatório:
+
+-   E\[$\eta \mid X$\] = 0
+-   E\[$\eta\eta' \mid X$\] = $\sigma^2_{\eta} I_{nT}$
+-   E\[$\alpha_i\alpha_j \mid X$\] = 0, i $\neq$ j
+-   E\[$\alpha_i\alpha_i \mid X$\] = $\sigma^2_{\alpha}$
+-   E\[$\alpha_i\mid X$\] = 0
+-   E\[$\alpha_1\eta_{jt} \mid X$\] = 0
+
+Com essas suposições, é possível obter a covariância do termo de erro:
+
+E\[$\epsilon_i\epsilon_i'$\] = $\sigma^2_\alpha ii' + \sigma^2_\eta I_T$
+
+Com isso,
+
+$\Omega$ = E\[$\epsilon\epsilon'$\] = $I_n \bigotimes \Sigma$, em que $\Sigma$ = E\[$\epsilon_i\epsilon_i'$\]
+
+## Between
+
+Sejam $\textbf{D}_{nTxn}$ uma matriz formada por n variáveis dummy representando cada unidade de i, e $\textbf{P}_{D} = \textbf{D}(\textbf{D}'\textbf{D})^{-1}\textbf{D}'$ uma matriz simétrica e idempotente.
+
+-   $\textbf{P}_{D}y = \textbf{P}_{D}X\beta + \textbf{P}_{D}\epsilon$
+-   $\hat{\beta_B} = (X'\textbf{P}_{D}'\textbf{P}_{D}X)^{-1}X'\textbf{P}_{D}'\textbf{P}_{D}y = (X'\textbf{P}_{D}X)^{-1}X'\textbf{P}_{D}y$
+
+em que $\hat{\beta_B}$ é chamado de between estimator, pois o estimador utiliza a informação **entre** indivíduos.
+
+$\hat{\beta}_B$ é equivalente a ajustar por MQO a equação: $$\begin{align*}
+\bar{y}_{i \cdot} = \bar{X}_{i \cdot} \beta + \text{erro}
+\end{align*}$$
+
+## Within
+
+Utilizando a matriz simétrica e idempotente $M_D = I_{nT} - P_D$ no lugar de $\textbf{P}_D$:
+
+-   $\textbf{M}_{D}y = \textbf{M}_{D}X\beta + \textbf{M}_{D}\epsilon$
+-   $\hat{\beta_W} = (X'M_DX)^{-1}X'M_Dy$
+
+em que $\hat{\beta_W}$ é chamado de within estimator, pois o estimador utiliza a informação **dentro** de cada indivíduo i.
+
+Este estimador é equivalente ao que obteríamos se aplicássemos MQO na seguinte equação: $$\begin{align*}
+y_{it} - \bar{y}_{i \cdot} = (X_{it} - \bar{X}_{i \cdot}) \beta + \text{erro}
+\end{align*}$$
+
+Ademais, o estimador é o mesmo que obteríamos se aplicássemos MQO nos dados originais, mas incluindo variáveis *dummy* para cada indivíduo (i).
+
+## Estimação de $\sigma^2_\eta$ e $\sigma^2_\alpha$
+
+O modelo de erros é dado por:
+
+$\epsilon_{it} = \alpha_i + \eta_{it},$
+
+A variância total do erro $\epsilon_{it}$ é:
+
+$Var(\epsilon_{it}) = \sigma^2_\eta +\sigma^2_\alpha$
+
+Ajusta-se um modelo de regressão e calcula-se os resíduos $\hat{u_{it}}$ correspondentes.
+
+-   Resíduos "Dentro" ($\hat{u_W}$): Diferença entre os resíduos individuais e a média ao longo do tempo.
+-   Resíduo "Entre" ($\hat{u_B}$): Média dos resíduos por unidade.
+
+Calculando os estimadores $\hat{\sigma^2_\eta}$ e $\hat{\sigma^2_\alpha}$, temos:
+
+-   $\hat{\sigma^2_\eta} = \frac{\hat{u'_W} \hat{u_W}}{nT - nk - n}$;
+-   $\hat{\sigma^2_\alpha} = \frac{\hat{u'_B}\hat{u_B}}{n - k} - \frac{\hat{\sigma^2_\eta}}{T}$.
+
+## Modelo de Efeitos Fixos
+
+-   O modelo de efeitos fixos controla os efeitos das variáveis omitidas que:
+    -   Variam entre indivíduos.
+    -   Permanecem constantes ao longo do tempo.
+-   Suposições:
+    -   O intercepto varia entre indivíduos, mas é constante ao longo do tempo.
+    -   Os parâmetros de resposta ($\beta_k$) são constantes entre indivíduos e períodos.
+
+### Forma Geral
+
+$$
+y_{it} = \alpha_i + \beta_1x_{1it} + \ldots + \beta_kx_{kit} + \epsilon_{it}
+$$
+
+As suposições acerca do erro são as mesmas apresentadas no Modelo de Efeitos Aleatórios.
+
+## Modelo de Efeitos Fixos
+
+-   Dados em painel permitem obter estimadores não viesados dos parâmetros de interesse, mesmo na presença de efeitos omitidos correlacionados, algo que o MQO em cortes transversais de indivíduos não consegue alcançar.
+
+-   O estimador de efeitos fixos não permite estimar coeficientes para variáveis explicativas que sejam invariantes ao longo do tempo.
+
+-   É robusto à omissão de variáveis explicativas relevantes, desde que estas sejam invariantes no tempo.
+
+-   Quando o modelo de efeitos aleatórios é válido, o estimador de efeitos fixos ainda fornece estimadores consistentes dos parâmetros de interesse, embora menos eficientes.
+
+-   Note que O estimador de efeitos fixos pode ser representado por: $\hat{\beta} = (X' M_D X)^{-1} X' M_D y = \hat{\beta}_W$
+
+## Modelo de Efeitos Aleatórios vs Modelo de Efeitos Fixos
+
+-   Se a correlação entre $\alpha_i$ e $X_{it}$ for nula, deve-se utilizar efeitos aleatórios. Caso contrário, utiliza-se efeitos fixos;
+-   Teste de Durbin-Wu-Hausman pode ajudar nessa escolha:
+    -   $H_0$: Efeitos Aleatórios (RE) são preferidos;
+    -   $H_1$: Efeitos Fixos (FE) são preferidos.
+    -   Estatística do Teste: $H = (\hat{\beta_{RE}} - \hat{\beta_{FE}})'(\Sigma_{FE} - \Sigma_{RE})^{-1}(\hat{\beta_{RE}} - \hat{\beta_{FE}}) \sim \chi^2_k$
+
+| Estimador          | $H_0$ é verdadeira      | $H_0$ não é verdadeira |
+|--------------------|-------------------------|------------------------|
+| $\hat{\beta_{RE}}$ | Consistente Eficiente   | Inconsistente          |
+| $\hat{\beta_{FE}}$ | Consistente Ineficiente | Consistente            |
+
+# Aplicação
+
+Baltagi, B. H., & Pinnoi, N. (1995). Public capital stock and state productivity growth: Further evidence from an error components model. Empirical Economics, 20(2), 351–359.
+
+## Motivação
+
+-   A relação entre capital público e desempenho econômico é um tema emergente na economia, com implicações significativas para políticas públicas.
+-   Uma típica abordagem é estimar a função de produção Cobb-Douglas por uma regressão linear simples envolvendo o estoque de capital público.
+-   O capital público é geralmente considerado um fator produtivo na produção privada, mas a magnitude dessa contribuição varia dependendo do nível de agregação
+-   Estimativas usando dados nacionais geralmente mostram uma contribuição maior, enquanto dados de áreas urbanas selecionadas indicam uma contribuição menor.
+-   Além disso, erros de medição podem influenciar as estimativas, pois é difícil observar diretamente o preço e os serviços fornecidos por bens de investimento, como a infraestrutura pública.
+
+## Motivação
+
+-   Este estudo investiga a contribuição de diferentes tipos de infraestrutura pública para a produção privada, utilizando dados de séries temporais e seções cruzadas de 48 estados dos EUA entre 1970 e 1986.
+-   A pesquisa aborda a variabilidade nas estimativas de contribuição do capital público, destacando a importância de considerar efeitos específicos de cada estado e erros de medição.
+-   A aplicação de um modelo de produção Cobb-Douglas com efeitos não observáveis permite uma análise mais precisa da relação entre capital público e produtividade.
+-   A correção de erros de medição é fundamental para obter estimativas consistentes e confiáveis.
+-   Os resultados podem informar decisões sobre investimentos em infraestrutura, ajudando a maximizar o impacto econômico e a eficiência dos recursos públicos.
+
+## Banco de Dados
+
+O banco de dados utilizado contém 816 observações referentes a 48 estados dos EUA, abrangendo o período de 1970 a 1986. As colunas incluídas no conjunto de dados são:
+
+-   **state**: Estado
+-   **year**: Ano
+-   **region**: Região
+-   **pcap**: Estoque de capital público
+-   **hwy**: Infraestrutura de rodovias e ruas
+-   **water**: Instalações de água e esgoto
+-   **util**: Outros edifícios e estruturas públicas
+-   **pc**: Estoque de Capital Privado
+-   **gsp**: Produto Interno Bruto Estadual (Gross State Product)
+-   **emp**: Insumo de trabalho medido pelo emprego em folhas de pagamento não agrícolas
+-   **unemp**: Taxa de desemprego estadual
+
+## Modelos
+
+As seguintes especificações log-lineares de Cobb-Douglas são estimadas. Todas as variáveis estão no logaritmo natural, exceto a taxa de desemprego (Unemp).
+
+### Modelo 1
+
+$Y_{it} = \alpha + \beta_1 K_{it} + \beta_2 L_{it} + \beta_3 \text{Unemp}_{it} + u_{it}$
+
+-   $Y_{it}$: Produção para o estado $i$ no tempo $t$.
+-   $K_{it}$: Insumo de capital para o estado $i$ no tempo $t$.
+-   $L_{it}$: Insumo de trabalho para o estado $i$ no tempo $t$.
+-   $\text{Unemp}_{it}$: Taxa de desemprego para o estado $i$ no tempo $t$ (não em forma logarítmica).
+-   $u_{it}$: Termo de erro capturando fatores não observados que afetam a produção.
+
+### Modelo 2
+
+$Y_{it} = \alpha + \beta_1 K_{it} + \beta_2 L_{it} + \beta_3 KG_{it} + \beta_4 \text{Unemp}_{it} + u_{it}$
+
+-   $KG_{it}$: Estoque de capital público para o estado $i$ no tempo $t$.
+
+## Modelos
+
+### Modelo 3
+
+$Y_{it} = \alpha + \beta_1 K_{it} + \beta_2 L_{it} + \beta_3 KH_{it} + \beta_4 KW_{it} + \beta_5 KO_{it} + \beta_6 \text{Unemp}_{it} + u_{it}$
+
+-   $KH_{it}$: Capital relacionado a rodovias e ruas para o estado $i$ no tempo $t$.
+-   $KW_{it}$: Capital relacionado a instalações de água e esgoto para o estado $i$ no tempo $t$.
+-   $KO_{it}$: Capital relacionado a outros edifícios e estruturas públicas para o estado $i$ no tempo $t$.
+
+Neste caso, $u_{it} = \mu_i + \nu_{it}$, onde $\mu_i$ é um efeito específico do estado e $\nu_{it}$ é uma perturbação aleatória clássica. $\mu_i$ pode ser modelado como fixo ou aleatório. O modelo considera efeitos específicos de estado, que podem ser fixos ou aleatórios, e utiliza Mínimos Quadrados Generalizados Factíveis (FGLS) para lidar com heterocedasticidade e correlação serial. 
+
+## O que esperar do aumento dos gastos públicos?
+
+#### Teoria Keynesiana
+
+Na teoria Keynesiana, para uma economia com setor externo em equilíbrio, temos a equação:
+
+$$ Renda Nacional = Consumo + Investimento + GastosGoverno $$
+
+A partir disso, temos a função do consumo:
+
+$$ Consumo  = Consumo Autônomo + c*Renda Disponível $$
+
+#### Teoria Neoclássica
+
+- A economia já opera em **pleno emprego**.
+- Ignora o impacto da **política fiscal**.
+- Os **investimentos do governo** "competem" com os do setor privado, resultando em um **desincentivo ao investimento privado**.
+
+
+## Modelo 1
+
+::: panel-tabset
+### R
+
+```{r, echo = T, warning = F, message = F}
+library(plm)
+data("Produc", package = "plm")
+pdata <- pdata.frame(Produc, index = c("state", "year"))
+
+summary(lm(formula = log(gsp) ~ log(pc) + log(emp) + unemp, data = pdata))
+```
+
+### R - Between
+
+```{r, echo = T, warning = F, message = F}
+summary(model_between <- plm(formula = log(gsp) ~ log(pc) + log(emp) + unemp, data = pdata, model = "between"))
+```
+
+### R-Within
+
+```{r, echo = T, warning = F, message = F}
+summary(model_within <- plm(formula = log(gsp) ~ log(pc) + log(emp) + unemp, data = pdata, model = "within"))
+
+phtest(model_between, model_within)
+```
+
+### R-FGLS
+
+```{r, echo = T, warning = F, message = F}
+summary(plm(log(gsp) ~ log(pc) + log(emp) + unemp, data = pdata, model = "random"))
+```
+:::
+
+## Modelo 2
+
+::: panel-tabset
+### R
+
+```{r, echo = T, warning = F, message = F}
+summary(lm(formula = log(gsp)~ log(pc) + log(emp) + log(pcap) + unemp, data = pdata))
+```
+
+### R-Between
+
+```{r, echo = T, warning = F, message = F}
+summary(model_between <- plm(formula = log(gsp)~ log(pc) + log(emp) + log(pcap) + unemp, data = pdata, model = "between"))
+```
+
+### R-Within
+
+```{r, echo = T, warning = F, message = F}
+summary(model_within <- plm(formula = log(gsp)~ log(pc) + log(emp) + log(pcap) + unemp, data = pdata, model = "within"))
+
+phtest(model_between, model_within)
+```
+
+### R-FGLS
+
+```{r}
+summary(plm(log(gsp)~ log(pc) + log(emp) + log(pcap) + unemp, data = pdata, model = "random"))
+```
+:::
+
+## Modelo 3
+
+::: panel-tabset
+### R
+
+```{r, echo = T, warning = F, message = F}
+summary(lm(formula = log(gsp)~ log(pc) + log(emp) + log(hwy) + log(water) + log(util) + unemp, data = pdata))
+```
+
+### R-Between
+
+```{r, echo = T, warning = F, message = F}
+summary(model_between <- plm(formula = log(gsp)~ log(pc) + log(emp) + log(hwy) + log(water) + log(util) + unemp, data = pdata, model = "between"))
+```
+
+### R-Within
+
+```{r, echo = T, warning = F, message = F}
+summary(model_within <- plm(formula = log(gsp)~ log(pc) + log(emp) + log(hwy) + log(water) + log(util) + unemp, data = pdata, model = "within"))
+
+phtest(model_between, model_within)
+```
+
+### R-FGLS
+
+```{r, echo = T, warning = F, message = F}
+summary(plm(log(gsp)~ log(pc) + log(emp) + log(hwy) + log(water) + log(util) + unemp, data = pdata, model = "random"))
+```
+:::
+
+## Modelo
+
+O teste de Hausman-Taylor revelou que os erros estão correlacionados com os regressores apenas quando o estoque de capital público é incluído na função de produção, tornando as estimativas de OLS, "Between" e FGLS inconsistentes. Erros de medição no capital público são abordados usando variáveis instrumentais, ao qual é usada a variável instrumental $KG_{t-2}$.
+
+Para verificar se há erro de medida na variável, podemos ver se os coeficientes variam significativamente conforme a diferença das variáveis são usadas no modelo.
+
+## Modelo envolvendo a primeira diferença
+
+::: panel-tabset
+### R - Modelo 2
+
+```{r, echo = T, warning = F, message = F}
+library(dplyr)
+library(plm)
+
+pdata_clean <- na.omit(pdata)
+
+# Calcular a primeira diferença logarítmica para a variável resposta e as covariáveis
+pdata_clean$gsp_diff1 <- diff(log(pdata_clean$gsp), lag = 1)
+pdata_clean$pc_diff1 <- diff(log(pdata_clean$pc), lag = 1)
+pdata_clean$emp_diff1 <- diff(log(pdata_clean$emp), lag = 1)
+pdata_clean$pcap_diff1 <- diff(log(pdata_clean$pcap), lag = 1)
+pdata_clean$unemp_diff1 <- diff(pdata_clean$unemp, lag = 1)
+pdata_clean$hwy_diff1 <- diff(log(pdata_clean$hwy), lag = 1)
+pdata_clean$water_diff1 <- diff(log(pdata_clean$water), lag = 1)
+pdata_clean$util_diff1 <- diff(log(pdata_clean$util), lag = 1)
+
+modelo2_diff1 <- lm(gsp_diff1 ~ -1 + pc_diff1 + emp_diff1 + pcap_diff1 + unemp_diff1, data = pdata_clean)
+summary(modelo2_diff1)
+```
+
+### R - Modelo 3
+
+```{r, echo = T, warning = F, message = F}
+modelo3_diff1 <- lm(gsp_diff1 ~ -1 + pc_diff1 + emp_diff1 + hwy_diff1 + water_diff1 + util_diff1 + unemp_diff1, data = pdata_clean)
+summary(modelo3_diff1)
+```
+:::
+
+## Modelo envolvendo a segunda diferença
+
+::: panel-tabset
+### R - Modelo 2
+
+```{r, echo = T, warning = F, message = F}
+pdata_clean$gsp_diff2 <- diff(log(pdata_clean$gsp), lag  = 2)
+pdata_clean$pc_diff2 <- diff(log(pdata_clean$pc), lag  = 2)
+pdata_clean$emp_diff2 <- diff(log(pdata_clean$emp), lag  = 2)
+pdata_clean$pcap_diff2 <- diff(log(pdata_clean$pcap), lag  = 2)
+pdata_clean$unemp_diff2 <- diff(pdata_clean$unemp, lag  = 2)
+pdata_clean$hwy_diff2 <- diff(log(pdata_clean$hwy), lag = 2)
+pdata_clean$water_diff2 <- diff(log(pdata_clean$water), lag = 2)
+pdata_clean$util_diff2 <- diff(log(pdata_clean$util), lag = 2)
+
+modelo2_diff2 <- lm(gsp_diff2 ~ -1 + pc_diff2 + emp_diff2 + pcap_diff2 + unemp_diff2, data = pdata_clean)
+summary(modelo2_diff2)
+```
+
+### R - Modelo 3
+
+```{r, echo = T, warning = F, message = F}
+modelo3_diff2 <- lm(gsp_diff2 ~ -1 + pc_diff2 + emp_diff2 + hwy_diff2 + water_diff2 + util_diff2 + unemp_diff2, data = pdata_clean)
+summary(modelo3_diff2)
+```
+:::
+
+## Modelo envolvendo a terceira diferença
+
+::: panel-tabset
+### R - Modelo 2
+
+```{r, echo = T, warning = F, message = F}
+# Calcular a  terceira diferença logarítmica para a variável resposta e as covariáveis
+pdata_clean$gsp_diff3 <- diff(log(pdata_clean$gsp), lag  = 3)
+pdata_clean$pc_diff3 <- diff(log(pdata_clean$pc), lag  = 3)
+pdata_clean$emp_diff3 <- diff(log(pdata_clean$emp), lag  = 3)
+pdata_clean$pcap_diff3 <- diff(log(pdata_clean$pcap), lag = 3)
+pdata_clean$unemp_diff3 <- diff(pdata_clean$unemp, lag  = 3)
+pdata_clean$hwy_diff3 <- diff(log(pdata_clean$hwy), lag = 3)
+pdata_clean$water_diff3 <- diff(log(pdata_clean$water), lag = 3)
+pdata_clean$util_diff3 <- diff(log(pdata_clean$util), lag = 3)
+
+modelo2_diff3 <- lm(gsp_diff3 ~ -1 + pc_diff3 + emp_diff3 + pcap_diff3 + unemp_diff3, data = pdata_clean)
+summary(modelo2_diff3)
+```
+
+### R - Modelo 3
+
+```{r, echo = T, warning = F, message = F}
+modelo3_diff3 <- lm(gsp_diff3 ~ -1 + pc_diff3 + emp_diff3 + hwy_diff3 + water_diff3 + util_diff3 + unemp_diff3, data = pdata_clean)
+summary(modelo3_diff3)
+```
+:::
+
+## Modelo envolvendo a quarta diferença
+
+::: panel-tabset
+### R - Modelo 2
+
+```{r, echo = T, warning = F, message = F}
+# Calcular a primeira diferença logarítmica para a variável resposta e as covariáveis
+pdata_clean$gsp_diff4 <- diff(log(pdata_clean$gsp), lag  = 4)
+pdata_clean$pc_diff4 <- diff(log(pdata_clean$pc), lag  = 4)
+pdata_clean$emp_diff4 <- diff(log(pdata_clean$emp), lag  = 4)
+pdata_clean$pcap_diff4 <- diff(log(pdata_clean$pcap), lag = 4)
+pdata_clean$unemp_diff4 <- diff(pdata_clean$unemp, lag  = 4)
+pdata_clean$hwy_diff4 <- diff(log(pdata_clean$hwy), lag = 4)
+pdata_clean$water_diff4 <- diff(log(pdata_clean$water), lag = 4)
+pdata_clean$util_diff4 <- diff(log(pdata_clean$util), lag = 4)
+
+modelo2_diff4 <- lm(gsp_diff4 ~ -1 + pc_diff4 + emp_diff4 + pcap_diff4 + unemp_diff4, data = pdata_clean)
+summary(modelo2_diff4)
+```
+
+### R - Modelo 3
+
+```{r, echo = T, warning = F, message = F}
+modelo3_diff4 <- lm(gsp_diff4 ~ -1 + pc_diff4 + emp_diff4 + hwy_diff4 + water_diff4 + util_diff4 + unemp_diff4, data = pdata_clean)
+summary(modelo3_diff4)
+```
+:::
+
+## Modelo com variáveis instrumentais
+
+::: panel-tabset
+### R - Modelo 2
+
+```{r}
+library(AER)
+
+model2_iv <- plm(log(gsp) ~ -1 + log(pc) + log(emp) + log(pcap) + unemp | log(pc) +
+                   I(lag(log(pcap), 2)) + log(emp) + unemp, 
+                   data = pdata, model = "within")
+summary(model2_iv)
+```
+
+### R - Modelo 3
+
+```{r}
+modelo_iv3 <- plm(log(gsp) ~  log(pc) + log(emp) + log(hwy) + log(water) + log(util) + unemp |
+  log(pc) + log(emp) + lag(log(hwy),2) + lag(log(water),2) + lag(log(util), 2) + unemp,
+  data = pdata, model = "within")
+
+summary(modelo_iv3)
+```
+:::
+
+## Conclusão
+
+- O capital público tem um efeito positivo e significativo na produção privada no longo prazo, mas os efeitos de curto prazo são menos claros.
+- A desagregação do capital público revela que rodovias e ruas, bem como instalações de água e esgoto e efeitos de outros edifícios públicos, têm efeitos positivos no curto prazo.
+- O impacto do capital público total na produção privada é insignificante quando se consideram erros de medição e efeitos específicos de estado.
+- No entanto, componentes específicos do capital público, como água e esgoto, mostram contribuições produtivas consistentes.
+- O estudo destaca a importância de considerar erros de medição e efeitos específicos de estado em análises econométricas para obter estimativas consistentes.
+
+## Críticas ao artigo
+
+- Explica de maneira incompleta como foi utilizado a variável instrumental no modelo, o que dificulta na replicação do artigo
+
+## Referências
+
+-   Cornwell, C., & Trumbull, W. N. (1994). Estimating the Economic Model of Crime with Panel Data. The Review of Economics and Statistics, 76(2), 360–366.
+-   Baltagi, B. H., & Pinnoi, N. (1995). Public capital stock and state productivity growth: Further evidence from an error components model. Empirical Economics, 20(2), 351–359.
